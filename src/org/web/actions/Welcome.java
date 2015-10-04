@@ -1,6 +1,9 @@
 package org.web.actions;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 
 import org.web.model.Hall;
@@ -22,24 +25,32 @@ public class Welcome extends ActionSupport implements ModelDriven<User>{
 	private static final long serialVersionUID = -5237726610817892384L;
 	private static final Logger logger = Logger
 			.getLogger(Welcome.class.getName());
+	
 	private String message;
     private String userName;
     private User user = new User();
-    //private List<User> listUser;
-    private static final Hall hall = new Hall();
-    public static List<User> listUsers = new ArrayList<User>();
-    // Función execute(), por defecto struts busca esta función si no se especifica otra
+    //private List<User> userList;
+    //private static final Hall hall = new Hall();
+    public static ConcurrentMap<String,User> userList = new ConcurrentHashMap<String, User>();
+    
+    public ConcurrentMap<String,User> getUserList() {
+		return userList;
+	}
+	public void setUserList(ConcurrentMap<String,User> userList) {
+		Welcome.userList = userList;
+	}
+	// Función execute(), por defecto struts busca esta función si no se especifica otra
     public String execute() throws Exception{
         setMessage("Hola usuario " + getUserName());
-        
         user.setName(getUserName());
         user.setToken(Helper.generate_random(9));
-        listUsers.add(user);
-        hall.put(user);
-        logger.info("New user -> " + user.getToken() + " Nombre -> " + user.getName());
-        for(User a : listUsers){
-        	System.out.println("Nombre -> " + a.getName() + " Token ->" + a.getToken());
+        userList.put(user.getToken(), user);
+       // hall.put(user);
+        //logger.info("New user -> " + user.getToken() + " Nombre -> " + user.getName());
+        for(Entry<String, User> user : userList.entrySet()){
+        	System.out.println("Nombre -> " + user.getValue().getName() + " Token ->" + user.getValue().getToken());
         }
+        setUserList(userList);
         return "SUCCESS";
     }
     // Devuelve el mensaje (mensaje + formulario)

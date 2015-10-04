@@ -1,30 +1,15 @@
 package org.web.socket;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
-
-import javassist.bytecode.Descriptor.Iterator;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
-
 import org.eclipse.jetty.util.ajax.JSON;
-import org.eclipse.jetty.util.ajax.JSONObjectConvertor;
 import org.eclipse.jetty.websocket.WebSocket;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.web.model.User;
-
-import sun.org.mozilla.javascript.json.JsonParser;
+import org.web.actions.Welcome;
 
 @ServerEndpoint(value = "/")
 public class HallProcessingSignal implements WebSocket.OnTextMessage {
@@ -32,41 +17,26 @@ public class HallProcessingSignal implements WebSocket.OnTextMessage {
 	private static final Logger logger = Logger
 			.getLogger(HallProcessingSignal.class.getName());
 	private static final ConcurrentMap<String, HallProcessingSignal> channels = new ConcurrentHashMap<String, HallProcessingSignal>();
-	// private static final Map<String, HallProcessingSignal> channels = new
-	// HashMap<String, HallProcessingSignal>();
-	// private Connection connection;
 	private String userHallToken;
 	private String userName;
-
 	private Connection connection;
-	private static ArrayList<Session> sessionList = new ArrayList<Session>();
-	private Session session;
-
-	/*
-	 * public static void send(String token, String message) {
-	 * logger.info("Enviando para " + token + " el mensaje (" + message + ") ");
-	 * //boolean success = false; for(Entry<String, HallProcessingSignal> a:
-	 * channels.entrySet()){
-	 * 
-	 * 
-	 * }
-	 * 
-	 * }
+	/**
+	 * Método para enviar la señal de conexión de un usuario a la sala Principal
+	 * @param userToken
+	 * @param userName
 	 */
-	public static void sendToHall(String userToken, String userName) {
-		// logger.info("Enviando el mensaje (" + message + ") ");
-		// boolean success = false;
-		// Envia el mensaje en broadcast
+	private static void sendToHall(String userToken, String userName) {
+
+		// Envia el mensaje de conexión en la sala Principal en broadcast
 		for (Entry<String, HallProcessingSignal> a : channels.entrySet()) {
 			HallProcessingSignal ws = a.getValue();
 			String tokens = a.getKey();
-			// System.out.println("Token iterator ->" + tokens);
-			// System.out.println("UserToken user ->" + userToken);
 			if (!userToken.equals(tokens)) {
 				logger.info("Enviando mensaje para los usuarios -> "
 						+ JSON.toString(ws));
 				JSONObject json = new JSONObject();
 				try {
+					json.put("type","newuser");
 					json.put("username", userName);
 					json.put("usertoken", userToken);
 					ws.sendMessageOut(json.toString());
@@ -74,72 +44,107 @@ public class HallProcessingSignal implements WebSocket.OnTextMessage {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
-				// ws.sendHallInfo(userToken);
-
-				// System.out.println("Enviando mensaje para el usuario -> " +
-				// JSON.toString(ws));
 			}
 		}
-
 	}
+	/**
+	 * Método para enviar la señal de deconexión del usuario a los demás usuarios de la sala Principal
+	 * @param userToken
+	 */
+	private static void deleteFromHall(String userToken) {
 
-	/** Send a message out */
+		// Envia el mensaje de desconexión a la sala Principal en broadcast
+		for (Entry<String, HallProcessingSignal> a : channels.entrySet()) {
+			HallProcessingSignal ws = a.getValue();
+			String token = a.getKey();
+			if (!userToken.equals(token)) { // Asi mismo no se envía el mensaje
+				logger.info("Enviando señal de desconexión a los usuarios -> "
+						+ JSON.toString(ws));
+				JSONObject json = new JSONObject();
+				try {
+					json.put("type","deleteuser");
+					json.put("usertoken", userToken);
+					ws.sendMessageOut(json.toString());
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	/**
+	 * Método para llamar a un usuario para realizar la llamada VoIP
+	 * @param calling
+	 * @param to
+	 */
+	private static void callingToUser(String calling, String to){
+		HallProcessingSignal ws = channels.get(to);
+		if(ws!=null){
+			JSONObject json = new JSONObject();
+			try{
+				json.put("sender", calling);
+				json.put("recive", to);
+				ws.sendMessageOut(json.toString());
+			}catch(JSONException e){
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	/**
+	 * Método para enviar el mensaje final
+	 * @param message
+	 */
 	public void sendMessageOut(String message) {
 
 		if (connection != null) {
 			try {
 				logger.info("Enviando el mensaje ... " + message);
 				connection.sendMessage(message);
-
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 
 	}
-
 	@Override
 	public void onClose(int arg0, String arg1) {
-		// TODO Auto-generated method stub
-		logger.info("Conexion cerrada");
+		
 		channels.remove(userHallToken, this);
-		// this.connection = null;
-		System.out.println("INT -> " + arg0 + " String -> " + arg1);
+		Welcome.userList.remove(userHallToken);
+		deleteFromHall(userHallToken);
+		logger.info("Conexion cerrada" + userHallToken);
 	}
 
 	@Override
 	public void onOpen(Connection connection) {
-		// TODO Auto-generated method stub
-		logger.info("Conexion abierta");
 
+		logger.info("Conexion abierta");
+		
 		this.connection = connection;
-		// System.out.println("JSON -> " + JSON.toString(arg0));
-		// System.out.println("JSON protocol -> " +
-		// JSON.toString(arg0.getProtocol()));
-		// System.out.println("JSON binary -> " +
-		// JSON.toString(arg0.getMaxBinaryMessageSize()));
+		
 	}
 
 	@Override
 	public void onMessage(String data) {
 		System.out.println("Se recibe -> " + data);
-		// System.out.println(JSON.toString(data));
-		// System.out.println(JSON.parse(JSON.toString(data)));
-
-		JSONArray jsonArray;
-		JSONObject explrObject;
+		JSONObject jsonObject;
 		try {
-			jsonArray = new JSONArray(data);
-			explrObject = jsonArray.getJSONObject(0);
-			if (explrObject.get("username") != null) {
-				System.out.println(JSON.toString(explrObject));
-				userName = explrObject.getString("username");
-				System.out.println(explrObject.getString("token"));
-				userHallToken = explrObject.getString("token");
-				System.out.println("userHallToken " + userHallToken);
+			jsonObject = new JSONObject(data);
+			if (!jsonObject.isNull("username")) {
+				//System.out.println(JSON.toString(jsonObject));
+				userName = jsonObject.getString("username");
+				//System.out.println(jsonObject.getString("token"));
+				userHallToken = jsonObject.getString("token");
+				//System.out.println("userHallToken " + userHallToken);
 				channels.put(userHallToken, this);
 				sendToHall(userHallToken, userName);
+			}
+			else if(!jsonObject.isNull("calling")){
+				System.out.println("Callinggggg");
+				String calling = jsonObject.getString("calling");
+				String to = jsonObject.getString("to");
+				callingToUser(calling,to);
 			}
 
 		} catch (JSONException e) {

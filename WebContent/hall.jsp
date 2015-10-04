@@ -1,6 +1,6 @@
 <%@page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <%@taglib uri="/struts-tags" prefix="s"%>
 <html>
 <head>
@@ -14,16 +14,31 @@
 			<li>Bienvenido usuario:</li>
 			<li id="myName"><s:property value="name" /></li>
 			<li id="myToken"><s:property value="token" /></li>
+			<s:set name="myToken" value="token"/>
 		</ul>
 	</s:push>
 	<p>Estas en la Sala Principal donde puedes contactar con los demas
 		usuarios</p>
 	<ul id="userList">
 
-
+		<s:iterator value="userList" status="userStatus">
+			<s:iterator value="key">
+				<s:iterator value="value">
+				<s:set name="token" value="%{token}" />
+				<s:if test="%{#myToken != #token}"> 
+					<li onclick="calling(this)" id="<s:property value="%{token}" />"><s:url id="callUrl" action="call">
+							<s:param value="%{token}" />
+						</s:url> <s:a href="%{callUrl}">
+						Usuario: <s:property value="name" />
+						</s:a></li>
+					</s:if>
+				</s:iterator>
+			</s:iterator>
+		</s:iterator>
 	</ul>
 </body>
 <script type="text/javascript">
+
 	var host = "http://localhost";
 	var port = 8080;
 	var wsPort = 8081;
@@ -52,7 +67,8 @@
 	}
 	function onChannelOpened() {
 		console.log('Conectado a la app');
-		channel.send('[{"username":"' + myName.innerHTML + '","token":"' + myToken.innerHTML + '"}]');
+		channel.send('{"username":"' + myName.innerHTML + '","token":"'
+				+ myToken.innerHTML + '"}');
 		//sendMessage(token);
 		//channel.send('user:' + myName.innerHTML + ":" + myToken.innerHTML);
 	}
@@ -70,7 +86,6 @@
 
 		console.log('Canal cerrado para el usuario');
 		alert('Canal cerrado para el usuario');
-		//channel = null;
 	}
 	/*function sendMessage(message) {
 		try {
@@ -84,27 +99,45 @@
 			console.log(error);
 		};
 	}*/
+	var userList = document.getElementById("userList");
 	function processSignalingMessage(message) {
 		console.log(message);
-		
+
 		if (message) {
 			var msg = JSON.parse(message);
 			//console.log("Processing signaling message:\n Msg type: " + msg.type); 
 			console.log(msg);
-			//var msg = JSON.parse(message);
-			//console.log(msg);
-			var userList = document.getElementById("userList");
-			var user = document.createElement("li");
-			var userToken = document.createTextNode(message);
-			var hiperLink = document.createElement("a");
-			hiperLink.setAttribute('href', host + ":" + port + "/webrtc/?r=" + msg.usertoken);
-			
-			hiperLink.appendChild(userToken);
-			user.appendChild(hiperLink);
-			
-			userList.appendChild(user);
+			if (msg.type == "newuser") {
+				//var msg = JSON.parse(message);
+				//console.log(msg);
+
+				var user = document.createElement("li");
+				user.setAttribute("id", msg.usertoken);
+				var userToken = document.createTextNode("Usuario: "
+						+ msg.username);
+				var hiperLink = document.createElement("a");
+				hiperLink.setAttribute('href', host + ":" + port
+						+ "/tfg/call.action?r=" + msg.usertoken);
+				hiperLink.setAttribute('title', "Pulse para llamar al usuario "
+						+ msg.username);
+				hiperLink.appendChild(userToken);
+				user.appendChild(hiperLink);
+
+				userList.appendChild(user);
+			}
+			if(msg.type == "deleteuser"){
+				console.log(msg.usertoken);
+				console.log(document.getElementById(msg.usertoken));
+				userList.removeChild(document.getElementById(msg.usertoken));
+				
+			}
 
 		}
+	}
+	function calling(toUser){
+		console.log("User ->" + toUser.id);
+		debugger;
+		channel.send('{"calling":"'+ myToken.innerHTML +'", "to":"'+ toUser.id +'"}');
 	}
 	initialize();
 </script>
