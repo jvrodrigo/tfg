@@ -10,17 +10,28 @@ import org.eclipse.jetty.websocket.WebSocket;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.web.actions.Welcome;
+import org.webrtc.common.Helper;
+import org.webrtc.model.Room;
 
 @ServerEndpoint(value = "/")
-public class HallProcessingSignal implements WebSocket.OnTextMessage {
+public class SignalingSocket implements WebSocket.OnTextMessage {
 
 	private static final Logger logger = Logger
-			.getLogger(HallProcessingSignal.class.getName());
-	private static final ConcurrentMap<String, HallProcessingSignal> channels = new ConcurrentHashMap<String, HallProcessingSignal>();
+			.getLogger(SignalingSocket.class.getName());
+	private static final ConcurrentMap<String, SignalingSocket> channels = new ConcurrentHashMap<String, SignalingSocket>();
 	private String userHallToken;
 	private String userName;
 	private Connection connection;
+	private String token;
 
+	public static boolean sendPeer(String token, String message) {
+		logger.info("Enviando para " +token + " el mensaje ("+message+") ");
+		boolean success = false;
+		SignalingSocket ws = channels.get(token);
+		if(ws!=null) 
+			success = ws.send(message);	
+		return success;
+	}
 	/**
 	 * Método para enviar la señal de conexión de un usuario a la sala Principal
 	 * 
@@ -30,8 +41,8 @@ public class HallProcessingSignal implements WebSocket.OnTextMessage {
 	private static void addUserToHall(String userToken, String userName) {
 
 		// Envia el mensaje de conexión en la sala Principal en broadcast
-		for (Entry<String, HallProcessingSignal> a : channels.entrySet()) {
-			HallProcessingSignal ws = a.getValue();
+		for (Entry<String, SignalingSocket> a : channels.entrySet()) {
+			SignalingSocket ws = a.getValue();
 			String tokens = a.getKey();
 			if (!userToken.equals(tokens)) {
 				logger.info("Enviando mensaje para los usuarios -> "
@@ -59,8 +70,8 @@ public class HallProcessingSignal implements WebSocket.OnTextMessage {
 	private static void deleteFromHall(String userToken) {
 
 		// Envia el mensaje de desconexión a la sala Principal en broadcast
-		for (Entry<String, HallProcessingSignal> a : channels.entrySet()) {
-			HallProcessingSignal ws = a.getValue();
+		for (Entry<String, SignalingSocket> a : channels.entrySet()) {
+			SignalingSocket ws = a.getValue();
 			String token = a.getKey();
 			if (!userToken.equals(token)) { // Asi mismo no se envía el mensaje
 				logger.info("Enviando señal de desconexión a los usuarios -> "
@@ -85,7 +96,7 @@ public class HallProcessingSignal implements WebSocket.OnTextMessage {
 	 * @param to
 	 */
 	private static void callingToUser(String from, String userName, String to) {
-		HallProcessingSignal ws = channels.get(to);
+		SignalingSocket ws = channels.get(to);
 		if (ws != null) {
 			JSONObject json = new JSONObject();
 			try {
@@ -106,7 +117,7 @@ public class HallProcessingSignal implements WebSocket.OnTextMessage {
 	 * 
 	 * @param message
 	 */
-	public void sendMessageOut(String message) {
+	private void sendMessageOut(String message) {
 
 		if (connection != null) {
 			try {
@@ -116,6 +127,22 @@ public class HallProcessingSignal implements WebSocket.OnTextMessage {
 				e.printStackTrace();
 			}
 		}
+
+	}
+	
+	private boolean send(String message) {
+
+		if (connection != null) {
+			try {
+				logger.info("Enviando el mensaje ... " + message);
+				connection.sendMessage(message);
+				return true;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+		return false;
 
 	}
 
@@ -130,6 +157,7 @@ public class HallProcessingSignal implements WebSocket.OnTextMessage {
 
 	@Override
 	public void onOpen(Connection connection) {
+		
 
 		logger.info("Conexion abierta");
 
@@ -166,6 +194,23 @@ public class HallProcessingSignal implements WebSocket.OnTextMessage {
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			try{
+				if(data.startsWith("token")) { // peer declaration
+					int index = data.indexOf(":");
+					token = data.substring(index+1);
+					channels.put(token, this);
+					logger.info("Añadido el token (valid="+Helper.is_valid_token(token)+"): "+token);
+				}else { // signaling messages exchange --> route it to the other peer
+					String room_key = Helper.get_room_key(token);
+					Room room = Room.get_by_key_name(room_key);
+					String user = Helper.get_user(token);
+					String other_user = room.get_other_user(user);
+					String other_token = Helper.make_token(room, other_user);
+					sendPeer(other_token, data);
+				}
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
 		}
 
 	}

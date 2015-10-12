@@ -21,7 +21,7 @@ public class MainPageServlet extends HttpServlet {
 	public String token;
 	public String roomKey;
 	//public static final String PATH = "webrtc/videoconferencia";
-	public static final String PATH = "";
+	public static final String PATH = "webrtc";
 	
 	/** Renders the main page. When this page is shown, we create a new channel to push asynchronous updates to the client.*/
 	@SuppressWarnings("null")
@@ -108,7 +108,7 @@ public class MainPageServlet extends HttpServlet {
 	        template_values.put("initiator", ""+initiator);
 	        template_values.put("pc_config", pc_config);
 	        resp.setContentType("text/html");
-	        File file = new File(getServletContext().getRealPath("/index.jtpl"));
+	        File file = new File(getServletContext().getRealPath("webrtc/index.jtpl"));
 	        resp.getWriter().println(Helper.generatePage(file, template_values));
 	        logger.info("Usuario " + user + " anadido a la habitacion " + room_key);
 	        logger.info("La habitacion " + room_key + " tiene el estado " + room);

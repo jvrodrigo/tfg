@@ -1,16 +1,10 @@
 package org.web.actions;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
-
-import org.web.model.Hall;
 import org.web.model.User;
-import org.web.socket.HallProcessingSignal;
 import org.webrtc.common.Helper;
-
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 

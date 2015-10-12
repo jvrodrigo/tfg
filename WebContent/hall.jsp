@@ -5,6 +5,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link href="css/style.css" rel="stylesheet" type="text/css">
 <title>Bienvenido a la Sala Principal</title>
 </head>
 <body>
@@ -14,27 +15,32 @@
 			<li>Bienvenido usuario:</li>
 			<li id="myName"><s:property value="name" /></li>
 			<li id="myToken"><s:property value="token" /></li>
-			<s:set name="myToken" value="token"/>
+			<s:set name="myToken" value="token" />
 		</ul>
 	</s:push>
 	<p>Estas en la Sala Principal donde puedes contactar con los demas
 		usuarios</p>
-		<div><p>Te está llamando: </p><span id="caller"></span>
+	<div id="calling-on">
+		<p>Te está llamando:</p>
+		<span id="caller"></span>
 		<p id="icon-call"></p>
-		</div>
+	</div>
 	<ul id="userList">
 
 		<s:iterator value="userList" status="userStatus">
 			<s:iterator value="key">
 				<s:iterator value="value">
-				<s:set name="token" value="%{token}" />
-				<s:set var="joinToken">${token}${myToken}</s:set>
-				<s:if test="%{#myToken != #token}"> 
-					<li onclick="calling(this)" id="<s:property value="%{token}" />"><s:url id="callUrl" action="calling">
-							<s:param name="r" value="#joinToken" />
-						</s:url> <s:a href="%{callUrl}">
-						Usuario: <s:property value="name" />
-						</s:a></li>
+					<s:set name="token" value="%{token}" />
+					<s:set var="joinToken">${token}${myToken}</s:set>
+					<s:if test="%{#myToken != #token}">
+						<li onclick="calling(this)" id="<s:property value="%{token}" />">
+<%-- 							<s:url id="callUrl" action="/" namespace="/webrtc"> --%>
+<%-- 								<s:param name="r" value="#joinToken" /> --%>
+<%-- 							</s:url> <s:a href="%{callUrl}"> --%>
+<%-- 						Usuario: <s:property value="name" /> --%>
+<%-- 							</s:a> --%>
+							<a href="webrtc/?r=${token}${myToken}">Usuario: <s:property value="name" /></a>
+						</li>
 					</s:if>
 				</s:iterator>
 			</s:iterator>
@@ -42,11 +48,13 @@
 	</ul>
 </body>
 <script type="text/javascript">
-function calling(toUser){
-	console.log("User ->" + toUser.id);
-	debugger;
-	channel.send('{"type":"calling", "from":"'+ myToken.innerHTML +'", "username":"'+ myName.innerHTML + '", "to":"'+ toUser.id +'"}');
-}
+	function calling(toUser) {
+		console.log("User ->" + toUser.id);
+		debugger;
+		channel.send('{"type":"calling", "from":"' + myToken.innerHTML
+				+ '", "username":"' + myName.innerHTML + '", "to":"'
+				+ toUser.id + '"}');
+	}
 	var host = "http://localhost";
 	var port = 8080;
 	var wsPort = 8081;
@@ -75,8 +83,8 @@ function calling(toUser){
 	}
 	function onChannelOpened() {
 		console.log('Conectado a la app');
-		channel.send('{"type":"connect", "username":"' + myName.innerHTML + '","token":"'
-				+ myToken.innerHTML + '"}');
+		channel.send('{"type":"connect", "username":"' + myName.innerHTML
+				+ '","token":"' + myToken.innerHTML + '"}');
 	}
 	function onChannelMessage(message) {
 
@@ -89,11 +97,11 @@ function calling(toUser){
 		console.log('Error del canal');
 	}
 	function onChannelClosed() {
-		
+
 		console.log('Canal cerrado para el usuario');
 		alert('Canal cerrado para el usuario');
 	}
-	
+
 	var userList = document.getElementById("userList");
 	function processSignalingMessage(message) {
 		//console.log(message);
@@ -109,12 +117,14 @@ function calling(toUser){
 				var user = document.createElement("li");
 				user.setAttribute("id", msg.usertoken);
 				user.setAttribute("onclick", "calling(this)");
-				user.setAttribute("title", "Pulse para llamar al usuario " + msg.username);
+				user.setAttribute("title", "Pulse para llamar al usuario "
+						+ msg.username);
 				var userToken = document.createTextNode("Usuario: "
 						+ msg.username);
 				var hiperLink = document.createElement("a");
 				hiperLink.setAttribute('href', host + ":" + port
-						+ "/tfg/webrtc/calling.action?r=" + msg.usertoken + myToken.innerHTML);
+						+ "webrtc/?r=" + msg.usertoken
+						+ myToken.innerHTML);
 				hiperLink.setAttribute('title', "Pulse para llamar al usuario "
 						+ msg.username);
 				hiperLink.appendChild(userToken);
@@ -122,15 +132,21 @@ function calling(toUser){
 
 				userList.appendChild(user);
 			}
-			if(msg.type == "deleteuser"){
+			if (msg.type == "deleteuser") {
 				//console.log(msg.usertoken);
 				//console.log(document.getElementById(msg.usertoken));
 				userList.removeChild(document.getElementById(msg.usertoken));
-				
+
 			}
-			if(msg.type == "calling"){
+			if (msg.type == "calling") {
 				//console.log("Te llama el usuario " +  msg.username);
-				document.getElementById("caller").innerHTML = '<a href="calling.action?r=' + myToken.innerHTML +''+ msg.sender +'">' + msg.username + '</a>';
+				document.getElementById("calling-on").style.display = "block";
+				document.getElementById("caller").innerHTML = '<a href="webrtc/?r='
+						+ myToken.innerHTML
+						+ ''
+						+ msg.sender
+						+ '">'
+						+ msg.username + '</a>';
 			}
 
 		}

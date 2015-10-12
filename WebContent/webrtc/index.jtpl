@@ -257,9 +257,9 @@ function setStatus(state) {
 function openChannel() {
 		
 	console.log("Abriendo el canal.");
-	//var location = "ws://{server_name}:8081/";
+	var location = "ws://{server_name}:8081/webrtc";
 	///var location = "ws://{server_name}:8000/webrtc/?r=" + roomKey;
-	var location = "ws://{server_name}:8000/webrtc/";
+	//var location = "ws://{server_name}:8000/webrtc/";
 	console.log(location);
 	channel = new WebSocket(location);
 	channel.onopen = onChannelOpened;

@@ -33,7 +33,7 @@ public class WebSocketListener implements ServletContextListener{
 			logger.info("Servidor Jetty con la referencia -> " + server);
 			
 			// 2) Register SingalingWebSocketHandler in the Jetty server instance.
-			HallSocketHandler hallSocketHandler = new HallSocketHandler();
+			SignalingSocketHandler hallSocketHandler = new SignalingSocketHandler();
 
 			hallSocketHandler.setHandler(new DefaultHandler());
 			hallSocketHandler.setHandler(server);
