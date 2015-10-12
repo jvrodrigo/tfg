@@ -48,7 +48,7 @@ public class Welcome extends ActionSupport implements ModelDriven<User>{
        // hall.put(user);
         //logger.info("New user -> " + user.getToken() + " Nombre -> " + user.getName());
         for(Entry<String, User> user : userList.entrySet()){
-        	System.out.println("Nombre -> " + user.getValue().getName() + " Token ->" + user.getValue().getToken());
+        	System.out.println("Usuarios conectados: Nombre -> " + user.getValue().getName() + " | Token ->" + user.getValue().getToken());
         }
         setUserList(userList);
         return "SUCCESS";

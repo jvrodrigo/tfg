@@ -2,11 +2,18 @@
 <!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
 "http://struts.apache.org/dtds/struts-2.0.dtd">
 <struts>
-    <constant name="struts.action.excludePattern" value="/hallmessage"/>
+    <constant name="struts.action.excludePattern" value="/message"/>
 	<package name="default" namespace="/" extends="struts-default">
 		<action name="welcome" class="org.web.actions.Welcome" method="execute">
 			<result name="SUCCESS">hall.jsp</result>
 			<result name="ERROR">error.jsp</result>
 		</action>
 	</package>
+	<package name="webrtc" namespace="/webrtc" extends="struts-default">
+		<action name="calling" class="org.web.actions.WebRTCConnection" method="execute">
+			<result name="SUCCESS">index.html</result>
+			<result name="ERROR">error.jsp</result>
+		</action>
+	</package>
+	
 </struts>

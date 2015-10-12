@@ -19,15 +19,19 @@
 	</s:push>
 	<p>Estas en la Sala Principal donde puedes contactar con los demas
 		usuarios</p>
+		<div><p>Te está llamando: </p><span id="caller"></span>
+		<p id="icon-call"></p>
+		</div>
 	<ul id="userList">
 
 		<s:iterator value="userList" status="userStatus">
 			<s:iterator value="key">
 				<s:iterator value="value">
 				<s:set name="token" value="%{token}" />
+				<s:set var="joinToken">${token}${myToken}</s:set>
 				<s:if test="%{#myToken != #token}"> 
-					<li onclick="calling(this)" id="<s:property value="%{token}" />"><s:url id="callUrl" action="call">
-							<s:param value="%{token}" />
+					<li onclick="calling(this)" id="<s:property value="%{token}" />"><s:url id="callUrl" action="calling">
+							<s:param name="r" value="#joinToken" />
 						</s:url> <s:a href="%{callUrl}">
 						Usuario: <s:property value="name" />
 						</s:a></li>
@@ -38,7 +42,11 @@
 	</ul>
 </body>
 <script type="text/javascript">
-
+function calling(toUser){
+	console.log("User ->" + toUser.id);
+	debugger;
+	channel.send('{"type":"calling", "from":"'+ myToken.innerHTML +'", "username":"'+ myName.innerHTML + '", "to":"'+ toUser.id +'"}');
+}
 	var host = "http://localhost";
 	var port = 8080;
 	var wsPort = 8081;
@@ -67,10 +75,8 @@
 	}
 	function onChannelOpened() {
 		console.log('Conectado a la app');
-		channel.send('{"username":"' + myName.innerHTML + '","token":"'
+		channel.send('{"type":"connect", "username":"' + myName.innerHTML + '","token":"'
 				+ myToken.innerHTML + '"}');
-		//sendMessage(token);
-		//channel.send('user:' + myName.innerHTML + ":" + myToken.innerHTML);
 	}
 	function onChannelMessage(message) {
 
@@ -83,41 +89,32 @@
 		console.log('Error del canal');
 	}
 	function onChannelClosed() {
-
+		
 		console.log('Canal cerrado para el usuario');
 		alert('Canal cerrado para el usuario');
 	}
-	/*function sendMessage(message) {
-		try {
-			var msgString = JSON.stringify(message);
-			console.log('C -> S: ' + msgString);
-			path = '/tfg/hallmessage';
-			var xhr = new XMLHttpRequest();
-			xhr.open('POST', path, true);
-			xhr.send(msgString);
-		} catch (error) {
-			console.log(error);
-		};
-	}*/
+	
 	var userList = document.getElementById("userList");
 	function processSignalingMessage(message) {
-		console.log(message);
+		//console.log(message);
 
 		if (message) {
 			var msg = JSON.parse(message);
 			//console.log("Processing signaling message:\n Msg type: " + msg.type); 
-			console.log(msg);
+			//console.log(msg);
 			if (msg.type == "newuser") {
 				//var msg = JSON.parse(message);
 				//console.log(msg);
 
 				var user = document.createElement("li");
 				user.setAttribute("id", msg.usertoken);
+				user.setAttribute("onclick", "calling(this)");
+				user.setAttribute("title", "Pulse para llamar al usuario " + msg.username);
 				var userToken = document.createTextNode("Usuario: "
 						+ msg.username);
 				var hiperLink = document.createElement("a");
 				hiperLink.setAttribute('href', host + ":" + port
-						+ "/tfg/call.action?r=" + msg.usertoken);
+						+ "/tfg/webrtc/calling.action?r=" + msg.usertoken + myToken.innerHTML);
 				hiperLink.setAttribute('title', "Pulse para llamar al usuario "
 						+ msg.username);
 				hiperLink.appendChild(userToken);
@@ -126,19 +123,19 @@
 				userList.appendChild(user);
 			}
 			if(msg.type == "deleteuser"){
-				console.log(msg.usertoken);
-				console.log(document.getElementById(msg.usertoken));
+				//console.log(msg.usertoken);
+				//console.log(document.getElementById(msg.usertoken));
 				userList.removeChild(document.getElementById(msg.usertoken));
 				
+			}
+			if(msg.type == "calling"){
+				//console.log("Te llama el usuario " +  msg.username);
+				document.getElementById("caller").innerHTML = '<a href="calling.action?r=' + myToken.innerHTML +''+ msg.sender +'">' + msg.username + '</a>';
 			}
 
 		}
 	}
-	function calling(toUser){
-		console.log("User ->" + toUser.id);
-		debugger;
-		channel.send('{"calling":"'+ myToken.innerHTML +'", "to":"'+ toUser.id +'"}');
-	}
+
 	initialize();
 </script>
 </html>

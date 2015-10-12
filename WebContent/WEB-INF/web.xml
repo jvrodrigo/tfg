@@ -15,13 +15,36 @@
 	<listener>
 		<listener-class>org.web.socket.WebSocketListener</listener-class>
 	</listener>
-	<servlet>
-		<servlet-name>HallMessageServlet</servlet-name>
-		<servlet-class>org.web.socket.HallMessageServlet</servlet-class>
+<servlet>
+		<servlet-name>MessageServlet</servlet-name>
+		<servlet-class>org.webrtc.web.MessagePageServlet</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
-		<servlet-name>HallMessageServlet</servlet-name>
-		<url-pattern>/hallmessage</url-pattern>
+		<servlet-name>MessageServlet</servlet-name>
+		<url-pattern>/message</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>MainServlet</servlet-name>
+		<servlet-class>org.webrtc.web.MainPageServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>MainServlet</servlet-name>
+		<url-pattern></url-pattern>
+	</servlet-mapping>
+
+	<!-- Serving static content with Tomcat's default Servlet -->
+	<servlet>
+		<servlet-name>DefaultServlet</servlet-name>
+		<servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DefaultServlet</servlet-name>
+		<url-pattern>/images/*</url-pattern>
+		<url-pattern>/css/*</url-pattern>
+		<url-pattern>/file/*</url-pattern>
+		<url-pattern>/js/*</url-pattern>
 	</servlet-mapping>
 </web-app>
