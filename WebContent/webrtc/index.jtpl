@@ -271,8 +271,8 @@ function openChannel() {
 function onChannelOpened() {
 
 	console.log('Canal abierto para el token: ' + channelToken);
-	//channel.send('{"webrtctoken":"' + channelToken + '"}');
-	channel.send('token:' + channelToken);
+	channel.send('{"type":"token", "value":"' + channelToken + '"}');
+	//channel.send('token:' + channelToken);
 	channelReady = true;
 
 	if (initiator)

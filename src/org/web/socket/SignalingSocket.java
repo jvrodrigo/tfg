@@ -195,8 +195,8 @@ public class SignalingSocket implements WebSocket.OnTextMessage {
 					String username = jsonObject.getString("username");
 					callingToUser(from, username, to);
 				}
-				if (jsonObject.get("type").equals("webrtctoken")) {
-					peerToken = jsonObject.getString("webrtctoken");
+				if (jsonObject.get("type").equals("token")) {
+					peerToken = jsonObject.getString("value");
 					channels.put(peerToken, this);
 					logger.info("Añadido el token (valid="+Helper.is_valid_token(peerToken)+"): "+peerToken);
 				}
@@ -204,23 +204,23 @@ public class SignalingSocket implements WebSocket.OnTextMessage {
 
 		} catch (JSONException e) {
 			e.printStackTrace();
-			try{
-				if(data.startsWith("token")) { // peer declaration
-					int index = data.indexOf(":");
-					peerToken = data.substring(index+1);
-					channels.put(peerToken, this);
-					logger.info("Añadido el token (valid="+Helper.is_valid_token(peerToken)+"): "+peerToken);
-				}else { // signaling messages exchange --> route it to the other peer
-					String room_key = Helper.get_room_key(peerToken);
-					Room room = Room.get_by_key_name(room_key);
-					String user = Helper.get_user(peerToken);
-					String other_user = room.get_other_user(user);
-					String other_token = Helper.make_token(room, other_user);
-					sendPeer(other_token, data);
-				}
-			}catch(Exception ex){
-				ex.printStackTrace();
-			}
+//			try{
+//				if(data.startsWith("token")) { // peer declaration
+//					int index = data.indexOf(":");
+//					peerToken = data.substring(index+1);
+//					channels.put(peerToken, this);
+//					logger.info("Añadido el token (valid="+Helper.is_valid_token(peerToken)+"): "+peerToken);
+//				}else { // signaling messages exchange --> route it to the other peer
+//					String room_key = Helper.get_room_key(peerToken);
+//					Room room = Room.get_by_key_name(room_key);
+//					String user = Helper.get_user(peerToken);
+//					String other_user = room.get_other_user(user);
+//					String other_token = Helper.make_token(room, other_user);
+//					sendPeer(other_token, data);
+//				}
+//			}catch(Exception ex){
+//				ex.printStackTrace();
+//			}
 		}
 
 	}
