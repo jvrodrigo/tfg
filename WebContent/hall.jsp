@@ -99,7 +99,7 @@
 	function onChannelClosed() {
 
 		console.log('Canal cerrado para el usuario');
-		alert('Canal cerrado para el usuario');
+		//alert('Canal cerrado para el usuario');
 	}
 
 	var userList = document.getElementById("userList");
@@ -123,7 +123,7 @@
 						+ msg.username);
 				var hiperLink = document.createElement("a");
 				hiperLink.setAttribute('href', host + ":" + port
-						+ "webrtc/?r=" + msg.usertoken
+						+ "/tfg/webrtc/?r=" + msg.usertoken
 						+ myToken.innerHTML);
 				hiperLink.setAttribute('title', "Pulse para llamar al usuario "
 						+ msg.username);

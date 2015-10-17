@@ -21,8 +21,8 @@ public class Helper {
 	public static String generate_random(int len) {
 		String generated = "";
 		for(int i=0; i<len; i++) {
-			int index = ((int) Math.round(Math.random()*10))%10;
-			generated += "0123456789".charAt(index);
+			int index = ((int) Math.round(Math.random()*62))%62;
+			generated += "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(index);
 		}		
 		return generated;
 	}
@@ -52,7 +52,7 @@ public class Helper {
 		return valid;
 	}
 	
-	/** @return room key from the token parameter */
+	/** @return la clave de la habitacion desde el parametro token */
 	public static String get_room_key(String token) {
 		String room_key = null;
 		if(token!=null) {
@@ -62,7 +62,7 @@ public class Helper {
 		}
 		return room_key;
 	}
-	/** @return user from the token parameter */
+	/** @return Al usuario desde un el parametro token */
 	public static String get_user(String token) {
 		String user = null;
 		if(token!=null) {
@@ -82,7 +82,7 @@ public class Helper {
 	}
 
 	
-	/** Create a {@link Map} from a {@link String} representing an URL query */
+	/** Crea un {@link Map} desde {@link String} representado por una consulta URL */
 	public static Map<String, String> get_query_map(String query) {  
 	    String[] params = query.split("&");  
 	    Map<String, String> map = new HashMap<String, String>();  
@@ -94,7 +94,7 @@ public class Helper {
 	    return map;  
 	} 
 	
-	/** Create a {@link String} from an {@link InputStream} */
+	/** Crea un {@link String} desde un {@link InputStream} */
 	public static String get_string_from_stream(InputStream input) {
 		String output = null;
 		try {
@@ -107,7 +107,7 @@ public class Helper {
 		return output;
 	}
 	
-	/** Generate an HTML file by using JTPL template engine to replace variables with their values provided in the map. */
+	/** Genera un archivo HTML utilizando la plantilla motor JTPL para remplazar las variables por sus valores en el map. */
 	public static String generatePage(File file, Map<String, String> values) {
 		String block = "main"; 
 		String output = null;

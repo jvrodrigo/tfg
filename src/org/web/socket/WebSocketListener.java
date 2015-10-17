@@ -1,7 +1,7 @@
 package org.web.socket;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+//import java.net.InetAddress;
+//import java.net.InetSocketAddress;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletContextEvent;
@@ -23,10 +23,10 @@ public class WebSocketListener implements ServletContextListener{
 			server = new Server(8081);
 			
 			//InetAddress address = InetAddress.getByName("127.5.78.129");
-			InetAddress address = InetAddress.getByName("localhost");
+			//InetAddress address = InetAddress.getByName("localhost");
 			
 			//InetSocketAddress bindAddr = new InetSocketAddress(address,8081);
-		    InetSocketAddress bindAddr = new InetSocketAddress(address,8081);
+		    //InetSocketAddress bindAddr = new InetSocketAddress(address,8081);
 		   // int port = 8081;
 			//server = new Server(bindAddr);
 			

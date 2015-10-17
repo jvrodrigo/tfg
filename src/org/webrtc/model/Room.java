@@ -10,7 +10,7 @@ public class Room {
 	private static final Logger logger = Logger.getLogger(Room.class.getName()); 
 	private static final ConcurrentMap<String, Room> DB = new ConcurrentHashMap<String, Room>();
 	
-	/** Retrieve a {@link Room} instance from database */
+	/** Toma una {@link Room} instanciado en la base de datos */
 	public static Room get_by_key_name(String room_key) {
 		return DB.get(room_key);
 	}
@@ -22,21 +22,21 @@ public class Room {
 			String[] values = token.split("/");
 			String room_key = values[0];
 			String user = values[1];
-		    logger.info("Removing user " + user + " from room " + room_key);
+		    logger.info("Retirando al usuario " + user + " de la habitacion " + room_key);
 
 		    Room room = Room.get_by_key_name(room_key);
 		    if(room!=null && room.has_user(user)) {
 		    	String other_user = room.get_other_user(user);
 		    	room.remove_user(user);
-		    	logger.info("Room " + room_key + " has state " + room.toString());
+		    	logger.info("La habitacion " + room_key + " tiene el estado " + room.toString());
 		    	if(other_user!=null) {		    		
 		    		//SignalingWebSocket.send(Helper.make_token(room, other_user), "{\"type\":\"bye\", \"user\":\"" + user + "\"}");
-			        logger.info("Sent BYE to " + other_user);
+			        logger.info("Enviando BYE al usuario " + other_user);
 			    }else {
 			    	room.delete();
 			    }
 		    } else
-		    	logger.warning("Unknown room " + room_key);
+		    	logger.warning("Habitacion desconocida " + room_key);
 		}
 	}
 	
@@ -98,7 +98,6 @@ public class Room {
 	        user2 = user;
 	    else {
 	        success = false;
-	    	System.out.print("room is full");
 	    }
 	    return success;
 	}

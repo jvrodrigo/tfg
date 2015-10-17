@@ -1,8 +1,6 @@
 package org.web.socket;
 
 import javax.servlet.http.HttpServletRequest;
-
-import org.eclipse.jetty.util.ajax.JSON;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketHandler;
 

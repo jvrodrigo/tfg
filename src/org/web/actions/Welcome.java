@@ -37,7 +37,7 @@ public class Welcome extends ActionSupport implements ModelDriven<User>{
     public String execute() throws Exception{
         setMessage("Hola usuario " + getUserName());
         user.setName(getUserName());
-        user.setToken(Helper.generate_random(9));
+        user.setToken(Helper.generate_random(16));
         userList.put(user.getToken(), user);
        // hall.put(user);
         //logger.info("New user -> " + user.getToken() + " Nombre -> " + user.getName());
@@ -45,6 +45,7 @@ public class Welcome extends ActionSupport implements ModelDriven<User>{
         	System.out.println("Usuarios conectados: Nombre -> " + user.getValue().getName() + " | Token ->" + user.getValue().getToken());
         }
         setUserList(userList);
+        //logger.info("Conectado nuevo usuario");
         return "SUCCESS";
     }
     // Devuelve el mensaje (mensaje + formulario)

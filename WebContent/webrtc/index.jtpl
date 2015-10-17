@@ -4,15 +4,15 @@
 <head>
 
 <link rel="canonical" href="{room_link}" />
-<link rel="stylesheet" type="text/css" href="css/style.css">
+<link rel="stylesheet" type="text/css" href="../css/style.css">
 <link rel="stylesheet"
 	href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <!-- <script type="text/javascript" src="js/ambilight.js"></script> -->
-<script type="text/javascript" src="js/RecordRTC.js"></script>
-<script type="text/javascript" src="js/mediaControls.js"></script>
-<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="../js/RecordRTC.js"></script>
+<script type="text/javascript" src="../js/mediaControls.js"></script>
+<script type="text/javascript" src="../js/bootstrap.js"></script>
 
 <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
 <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
@@ -178,24 +178,24 @@ function preLoader(){
 	// Contador
 	var i = 0;
     // Objeto Imagen
-	imageObj = new Image();
+// 	imageObj = new Image();
 
-    // Lista de imagenes
-    images = new Array();
-    images[0]="./images/enterfullscreen.png";
-    images[1]="./images/exitfullscreen.png";
-    images[2]="./images/altavoz-off.png";
-    images[3]="./images/altavoz-on.png";
-    images[4]="./images/call.png";
-    images[5]="./images/hangup.png";
-    images[6]="./images/camera.png";
-    images[7]="./file/futura.ttf";
+//     // Lista de imagenes
+//     images = new Array();
+//     images[0]="./images/enterfullscreen.png";
+//     images[1]="./images/exitfullscreen.png";
+//     images[2]="./images/altavoz-off.png";
+//     images[3]="./images/altavoz-on.png";
+//     images[4]="./images/call.png";
+//     images[5]="./images/hangup.png";
+//     images[6]="./images/camera.png";
+//     images[7]="./file/futura.ttf";
     
-    /* Empieza la precarga */
-    for(i=0; i <= 6; i++) 
-    {
-         imageObj.src=images[i];
-    };
+//     /* Empieza la precarga */
+//     for(i=0; i <= 6; i++) 
+//     {
+//          imageObj.src=images[i];
+//     };
     /* Fin de la precarga*/    
 }
 
@@ -257,7 +257,7 @@ function setStatus(state) {
 function openChannel() {
 		
 	console.log("Abriendo el canal.");
-	var location = "ws://{server_name}:8081/webrtc";
+	var location = "ws://{server_name}:8081/tfg/webrtc";
 	///var location = "ws://{server_name}:8000/webrtc/?r=" + roomKey;
 	//var location = "ws://{server_name}:8000/webrtc/";
 	console.log(location);
@@ -271,6 +271,7 @@ function openChannel() {
 function onChannelOpened() {
 
 	console.log('Canal abierto para el token: ' + channelToken);
+	//channel.send('{"webrtctoken":"' + channelToken + '"}');
 	channel.send('token:' + channelToken);
 	channelReady = true;
 
@@ -483,7 +484,9 @@ function sendMessage(message) {
 	try {
 		var msgString = JSON.stringify(message);
 		console.log('C -> S: ' + msgString);
-		path = '/{PATH}/message?r={room_key}' + '&u={me}';
+		//path = 'tfg/{PATH}/message?r={room_key}' + '&u={me}';
+		//path = 'tfg/webrtc/message?r={room_key}' + '&u={me}';
+		path = 'http://localhost:8080/tfg/message?r={room_key}' + '&u={me}';
 		var xhr = new XMLHttpRequest();
 		xhr.open('POST', path, true);
 		xhr.send(msgString);
@@ -493,9 +496,10 @@ function sendMessage(message) {
 }
 
 function processSignalingMessage(message) {
+	var msg = null;
 	if (message) {
 		try{
-			var msg = JSON.parse(message);
+			msg = JSON.parse(message);
 		}catch (e) {
 			console.log("Error JSON");
 		} 
@@ -701,6 +705,9 @@ function chatWriteSendMessage(message){
 	}, 1000);
 }
 /* FIN ESCRIBIR LOS MENSAJES EN EL CHAT */
+ 
+ /** FUNCIONES Y ANIMACIONES DE LA VIDEOCONFERENCIA **/
+ 
 function onHangUp() {
 	console.log("En espera.");
 	started = false; // Para de procesar cualquier mensaje

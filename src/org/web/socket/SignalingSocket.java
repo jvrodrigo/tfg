@@ -22,18 +22,19 @@ public class SignalingSocket implements WebSocket.OnTextMessage {
 	private String userHallToken;
 	private String userName;
 	private Connection connection;
-	private String token;
+	private String peerToken;
 
 	public static boolean sendPeer(String token, String message) {
 		logger.info("Enviando para " +token + " el mensaje ("+message+") ");
 		boolean success = false;
 		SignalingSocket ws = channels.get(token);
-		if(ws!=null) 
-			success = ws.send(message);	
+		if(ws!=null) {
+			success = ws.send(message);
+		}
 		return success;
 	}
 	/**
-	 * Método para enviar la señal de conexión de un usuario a la sala Principal
+	 * Método estatico para enviar la señal de conexión de un usuario a la sala Principal
 	 * 
 	 * @param userToken
 	 * @param userName
@@ -54,7 +55,6 @@ public class SignalingSocket implements WebSocket.OnTextMessage {
 					json.put("usertoken", userToken);
 					ws.sendMessageOut(json.toString());
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -62,7 +62,7 @@ public class SignalingSocket implements WebSocket.OnTextMessage {
 	}
 
 	/**
-	 * Método para enviar la señal de deconexión del usuario a los demás
+	 * Método estatico para enviar la señal de deconexión del usuario a los demás
 	 * usuarios de la sala Principal
 	 * 
 	 * @param userToken
@@ -82,7 +82,6 @@ public class SignalingSocket implements WebSocket.OnTextMessage {
 					json.put("usertoken", userToken);
 					ws.sendMessageOut(json.toString());
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -90,7 +89,7 @@ public class SignalingSocket implements WebSocket.OnTextMessage {
 	}
 
 	/**
-	 * Método para llamar a un usuario para realizar la llamada VoIP, el usuario
+	 * Método estatico para llamar a un usuario para realizar la llamada VoIP, el usuario
 	 * entra en la sala y envia la peticion a otro usuario
 	 * @param calling
 	 * @param to
@@ -129,7 +128,11 @@ public class SignalingSocket implements WebSocket.OnTextMessage {
 		}
 
 	}
-	
+	/**
+	 * Método para enviar los datos de WebRTC para la videoconexión
+	 * @param message
+	 * @return
+	 */
 	private boolean send(String message) {
 
 		if (connection != null) {
@@ -148,21 +151,24 @@ public class SignalingSocket implements WebSocket.OnTextMessage {
 
 	@Override
 	public void onClose(int arg0, String arg1) {
-
-		channels.remove(userHallToken, this);
-		Welcome.userList.remove(userHallToken);
-		deleteFromHall(userHallToken);
-		logger.info("Conexion cerrada -> Token:" + userHallToken);
+		if(userHallToken!=null){
+			channels.remove(userHallToken, this);
+			Welcome.userList.remove(userHallToken);
+			deleteFromHall(userHallToken);
+			logger.info("Conexion cerrada de la sala principal -> Token:" + userHallToken);
+		}
+		if(peerToken!=null){
+			channels.remove(peerToken, this);
+			Room.disconnect(peerToken);
+			logger.info("VideoConexion cerrada -> Token:" + peerToken);
+		}
 	}
 
 	@Override
 	public void onOpen(Connection connection) {
 		
-
 		logger.info("Conexion abierta");
-
 		this.connection = connection;
-
 	}
 
 	/*
@@ -189,21 +195,25 @@ public class SignalingSocket implements WebSocket.OnTextMessage {
 					String username = jsonObject.getString("username");
 					callingToUser(from, username, to);
 				}
+				if (jsonObject.get("type").equals("webrtctoken")) {
+					peerToken = jsonObject.getString("webrtctoken");
+					channels.put(peerToken, this);
+					logger.info("Añadido el token (valid="+Helper.is_valid_token(peerToken)+"): "+peerToken);
+				}
 			}
 
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			try{
 				if(data.startsWith("token")) { // peer declaration
 					int index = data.indexOf(":");
-					token = data.substring(index+1);
-					channels.put(token, this);
-					logger.info("Añadido el token (valid="+Helper.is_valid_token(token)+"): "+token);
+					peerToken = data.substring(index+1);
+					channels.put(peerToken, this);
+					logger.info("Añadido el token (valid="+Helper.is_valid_token(peerToken)+"): "+peerToken);
 				}else { // signaling messages exchange --> route it to the other peer
-					String room_key = Helper.get_room_key(token);
+					String room_key = Helper.get_room_key(peerToken);
 					Room room = Room.get_by_key_name(room_key);
-					String user = Helper.get_user(token);
+					String user = Helper.get_user(peerToken);
 					String other_user = room.get_other_user(user);
 					String other_token = Helper.make_token(room, other_user);
 					sendPeer(other_token, data);

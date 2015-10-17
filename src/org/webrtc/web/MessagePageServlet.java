@@ -8,9 +8,8 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import org.web.socket.SignalingSocket;
 import org.webrtc.common.Helper;
-import org.webrtc.common.SignalingWebSocket;
 import org.webrtc.model.Room;
 
 public class MessagePageServlet extends HttpServlet {
@@ -36,7 +35,7 @@ public class MessagePageServlet extends HttpServlet {
 		            message = message.replace("\"offer\"", "\"answer\"");
 		            message = message.replace("a=crypto:0 AES_CM_128_HMAC_SHA1_32", "a=xrypto:0 AES_CM_128_HMAC_SHA1_32");
 		    	}
-		    	if(SignalingWebSocket.sendPeer(Helper.make_token(room, other_user), message)){
+		    	if(SignalingSocket.sendPeer(Helper.make_token(room, other_user), message)){
 		    		System.out.println("OK - Mensaje enviado al usuario " + other_user + " FIN");
 		    		resp.setContentType("text/html");
 		    		resp.setStatus(HttpServletResponse.SC_OK);

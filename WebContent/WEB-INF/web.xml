@@ -39,15 +39,15 @@
 	</servlet-mapping>
 
 	<!-- Serving static content with Tomcat's default Servlet -->
-	<servlet>
-		<servlet-name>DefaultServlet</servlet-name>
-		<servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>DefaultServlet</servlet-name>
-		<url-pattern>/images/*</url-pattern>
-		<url-pattern>/css/*</url-pattern>
-		<url-pattern>/file/*</url-pattern>
-		<url-pattern>/js/*</url-pattern>
-	</servlet-mapping>
+<!-- 	<servlet> -->
+<!-- 		<servlet-name>DefaultServlet</servlet-name> -->
+<!-- 		<servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class> -->
+<!-- 	</servlet> -->
+<!-- 	<servlet-mapping> -->
+<!-- 		<servlet-name>DefaultServlet</servlet-name> -->
+<!-- 		<url-pattern>/images/*</url-pattern> -->
+<!-- 		<url-pattern>/css/*</url-pattern> -->
+<!-- 		<url-pattern>/file/*</url-pattern> -->
+<!-- 		<url-pattern>/js/*</url-pattern> -->
+<!-- 	</servlet-mapping> -->
 </web-app>
