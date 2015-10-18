@@ -1,5 +1,7 @@
 package org.web.actions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -12,7 +14,7 @@ import com.opensymphony.xwork2.ModelDriven;
 /**
  * Clase Welcome almacena el nombre de usuario y un token
  */
-public class Welcome extends ActionSupport implements ModelDriven<User> {
+public class Welcome extends ActionSupport implements ModelDriven<User>{
 	/**
 	 * 
 	 */
@@ -22,27 +24,42 @@ public class Welcome extends ActionSupport implements ModelDriven<User> {
 			.getName());
 	private String message;
 	private String userName;
-	private User user = new User();
-	public static ConcurrentMap<String, User> userList = new ConcurrentHashMap<String, User>();
-
+	private User user;
+	public static ConcurrentMap<String, User> usersList = new ConcurrentHashMap<String, User>();
+	public static List<String> userListAux;
 	// Función execute(), por defecto struts busca esta función si no se
 	// especifica otra
 	public String execute() throws Exception {
+		user = new User();
+		//userListAux = new ArrayList<String>();
+		//userListAux.add(getUserName());
 		setMessage("Hola usuario " + getUserName());
 		user.setName(getUserName());
 		user.setToken(Helper.generate_random(16));
-		userList.put(user.getToken(), user);
-		for (Entry<String, User> user : userList.entrySet()) {
+		usersList.put(user.getToken(), user);
+		
+		for (Entry<String, User> user : usersList.entrySet()) {
 			System.out.println("Usuarios conectados: Nombre -> "
-					+ user.getValue().getName() + " | Token ->"
+					+ user.getValue().getName() + " | Token -> "
 					+ user.getValue().getToken());
 		}
-		setUserList(userList);
-		logger.info("Nuevo usuario conectado: " + user.getName() + " token "
-				+ user.getToken());
+		//setUsersList(usersList);
+//		logger.info("Nuevo usuario conectado: Nombre -> " + user.getName() + " token -> "
+//				+ user.getToken());
 		return "SUCCESS";
 	}
-
+	/**
+	 * @return the userListAux
+	 */
+//	public List<String> getUserListAux() {
+//		return userListAux;
+//	}
+//	/**
+//	 * @param userListAux the userListAux to set
+//	 */
+//	public void setUserListAux(List<String> userListAux) {
+//		this.userListAux = userListAux;
+//	}
 	/**
 	 * @return the message
 	 */
@@ -88,15 +105,15 @@ public class Welcome extends ActionSupport implements ModelDriven<User> {
 	/**
 	 * @return the userList
 	 */
-	public static ConcurrentMap<String, User> getUserList() {
-		return userList;
+	public ConcurrentMap<String, User> getUsersList() {
+		return usersList;
 	}
 
 	/**
 	 * @param userList the userList to set
 	 */
-	public static void setUserList(ConcurrentMap<String, User> userList) {
-		Welcome.userList = userList;
+	public void setUsersList(ConcurrentMap<String, User> usersList) {
+		Welcome.usersList = usersList;
 	}
 
 	@Override

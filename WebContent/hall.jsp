@@ -9,51 +9,58 @@
 <title>Bienvenido a la Sala Principal</title>
 </head>
 <body>
-
-	<s:push value="model">
-		<ul>
-			<li>Bienvenido usuario:</li>
-			<li id="myName"><s:property value="name" /></li>
-			<li id="myToken"><s:property value="token" /></li>
-			<s:set name="myToken" value="token" />
-		</ul>
-	</s:push>
-	<p>Estas en la Sala Principal donde puedes contactar con los demas
-		usuarios</p>
-	<div id="calling-on">
-		<p>Te está llamando:</p>
-		<span id="caller"></span>
-		<p id="icon-call"></p>
-	</div>
-	<ul id="userList">
-
-		<s:iterator value="userList" status="userStatus">
-			<s:iterator value="key">
-				<s:iterator value="value">
-					<s:set name="token" value="%{token}" />
-					<s:set var="joinToken">${token}${myToken}</s:set>
-					<s:if test="%{#myToken != #token}">
-						<li onclick="calling(this)" id="<s:property value="%{token}" />">
-<%-- 							<s:url id="callUrl" action="/" namespace="/webrtc"> --%>
-<%-- 								<s:param name="r" value="#joinToken" /> --%>
-<%-- 							</s:url> <s:a href="%{callUrl}"> --%>
-<%-- 						Usuario: <s:property value="name" /> --%>
-<%-- 							</s:a> --%>
-							<a href="webrtc/?r=${token}${myToken}">Usuario: <s:property value="name" /></a>
-						</li>
-					</s:if>
+	<div id="content">
+		<h1>Sala Principal</h1>
+		<s:push value="model">
+			<ul>
+				<li>Usuario: <span id="myName"><s:property value="name" /></span></li>
+				<li>Token: <span id="myToken"><s:property value="token" /></span></li>
+				<s:set name="myToken" value="token" />
+			</ul>
+		</s:push>
+		<h2>Estas en la Sala Principal donde puedes contactar con los
+			demas usuarios</h2>
+		<div id="calling-on">
+			Te está llamando:
+			<span id="caller"></span>
+			<button id="lift"></button><button id="hang-up"></button>
+		</div>
+		<div class="users-list-div">
+			<ul id="usersList" class="users-list-ul">
+				<s:iterator value="usersList" status="usersListStatus">
+					<s:iterator value="key">
+						<s:iterator value="value">
+							<s:set name="token" value="%{token}" />
+							<s:set var="joinToken">${token}${myToken}</s:set>
+							<s:if test="%{#myToken != #token}">
+								<li onclick="calling(this)" id="<s:property value="%{token}" />"
+									class="users-list-li"
+									title="Pulse para llamar al usuario <s:property value="name" />">
+									<%-- 							<s:url id="callUrl" action="/" namespace="/webrtc"> --%>
+									<%-- 								<s:param name="r" value="#joinToken" /> --%> <%-- 							</s:url> <s:a href="%{callUrl}"> --%>
+									<%-- 						Usuario: <s:property value="name" /> --%> <%-- 							</s:a> --%>
+									<%-- 							<a href="webrtc/?r=${token}${myToken}">Usuario: <s:property value="name" /></a> --%>
+									<p>
+										Usuario:
+										<s:property value="name" />
+									</p>
+							</s:if>
+						</s:iterator>
+					</s:iterator>
 				</s:iterator>
-			</s:iterator>
-		</s:iterator>
-	</ul>
+			</ul>
+		</div>
+	</div>
 </body>
 <script type="text/javascript">
 	function calling(toUser) {
 		console.log("User ->" + toUser.id);
 		debugger;
+
 		channel.send('{"type":"calling", "from":"' + myToken.innerHTML
 				+ '", "username":"' + myName.innerHTML + '", "to":"'
 				+ toUser.id + '"}');
+		window.location.assign("webrtc/?r="+ toUser.id + myToken.innerHTML);
 	}
 	var host = "http://localhost";
 	var port = 8080;
@@ -102,7 +109,7 @@
 		//alert('Canal cerrado para el usuario');
 	}
 
-	var userList = document.getElementById("userList");
+	var usersList = document.getElementById("usersList");
 	function processSignalingMessage(message) {
 		//console.log(message);
 
@@ -117,25 +124,27 @@
 				var user = document.createElement("li");
 				user.setAttribute("id", msg.usertoken);
 				user.setAttribute("onclick", "calling(this)");
+				user.setAttribute("class", "users-list-li");
 				user.setAttribute("title", "Pulse para llamar al usuario "
 						+ msg.username);
 				var userToken = document.createTextNode("Usuario: "
 						+ msg.username);
-				var hiperLink = document.createElement("a");
-				hiperLink.setAttribute('href', host + ":" + port
-						+ "/tfg/webrtc/?r=" + msg.usertoken
-						+ myToken.innerHTML);
-				hiperLink.setAttribute('title', "Pulse para llamar al usuario "
-						+ msg.username);
-				hiperLink.appendChild(userToken);
-				user.appendChild(hiperLink);
-
-				userList.appendChild(user);
+				// 				var hiperLink = document.createElement("a");
+				// 				hiperLink.setAttribute('href', host + ":" + port
+				// 						+ "/tfg/webrtc/?r=" + msg.usertoken
+				// 						+ myToken.innerHTML);
+				// 				hiperLink.setAttribute('title', "Pulse para llamar al usuario "
+				// 						+ msg.username);
+				// 				hiperLink.appendChild(userToken);
+				var paragrap = document.createElement("p");
+				paragrap.appendChild(userToken);
+				user.appendChild(paragrap);
+				usersList.appendChild(user);
 			}
 			if (msg.type == "deleteuser") {
 				//console.log(msg.usertoken);
 				//console.log(document.getElementById(msg.usertoken));
-				userList.removeChild(document.getElementById(msg.usertoken));
+				usersList.removeChild(document.getElementById(msg.usertoken));
 
 			}
 			if (msg.type == "calling") {
@@ -147,6 +156,7 @@
 						+ msg.sender
 						+ '">'
 						+ msg.username + '</a>';
+				
 			}
 
 		}

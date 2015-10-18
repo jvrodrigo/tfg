@@ -2,6 +2,8 @@ package org.web.socket;
 
 //import java.net.InetAddress;
 //import java.net.InetSocketAddress;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletContextEvent;
@@ -20,28 +22,28 @@ public class WebSocketListener implements ServletContextListener{
 	public void contextInitialized(ServletContextEvent event) {
 		try {
 			// 1) Create a Jetty server with the 8081 port.
-			server = new Server(8081);
+			//server = new Server(8081);
 			
 			//InetAddress address = InetAddress.getByName("127.5.78.129");
-			//InetAddress address = InetAddress.getByName("localhost");
+			InetAddress address = InetAddress.getByName("localhost");
 			
-			//InetSocketAddress bindAddr = new InetSocketAddress(address,8081);
+			InetSocketAddress bindAddr = new InetSocketAddress(address,8081);
 		    //InetSocketAddress bindAddr = new InetSocketAddress(address,8081);
 		   // int port = 8081;
-			//server = new Server(bindAddr);
+			server = new Server(bindAddr);
 			
-			logger.info("Servidor Jetty con la referencia -> " + server);
+			//logger.info("Servidor Jetty con la referencia -> " + server);
 			
 			// 2) Register SingalingWebSocketHandler in the Jetty server instance.
-			SignalingSocketHandler hallSocketHandler = new SignalingSocketHandler();
+			SignalingSocketHandler signalingSocketHandler = new SignalingSocketHandler();
 
-			hallSocketHandler.setHandler(new DefaultHandler());
-			hallSocketHandler.setHandler(server);
-			server.setHandler(hallSocketHandler);
+			signalingSocketHandler.setHandler(new DefaultHandler());
+			signalingSocketHandler.setHandler(server);
+			server.setHandler(signalingSocketHandler);
 			// 2) Start the Jetty server.
 			server.start();
 			
-			System.out.println("Estado del servidor -> " + server.getState());
+			logger.info("Estado del servidor -> " + server.getState());
 			
 			
 		} catch (Throwable e) {

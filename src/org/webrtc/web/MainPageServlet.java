@@ -8,8 +8,6 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONObject;
 import org.webrtc.common.Helper;
 import org.webrtc.model.Room;
 

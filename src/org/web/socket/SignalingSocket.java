@@ -153,7 +153,7 @@ public class SignalingSocket implements WebSocket.OnTextMessage {
 	public void onClose(int arg0, String arg1) {
 		if(userHallToken!=null){
 			channels.remove(userHallToken, this);
-			Welcome.userList.remove(userHallToken);
+			Welcome.usersList.remove(userHallToken);
 			deleteFromHall(userHallToken);
 			logger.info("Conexion cerrada de la sala principal -> Token:" + userHallToken);
 		}

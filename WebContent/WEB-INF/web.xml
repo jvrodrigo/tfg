@@ -37,7 +37,7 @@
 		<servlet-name>MainServlet</servlet-name>
 		<url-pattern>/webrtc/*</url-pattern>
 	</servlet-mapping>
-
+	
 	<!-- Serving static content with Tomcat's default Servlet -->
 <!-- 	<servlet> -->
 <!-- 		<servlet-name>DefaultServlet</servlet-name> -->
