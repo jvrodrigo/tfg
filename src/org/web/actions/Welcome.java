@@ -24,42 +24,28 @@ public class Welcome extends ActionSupport implements ModelDriven<User>{
 			.getName());
 	private String message;
 	private String userName;
-	private User user;
+	private User user = new User();
 	public static ConcurrentMap<String, User> usersList = new ConcurrentHashMap<String, User>();
 	public static List<String> userListAux;
 	// Función execute(), por defecto struts busca esta función si no se
 	// especifica otra
 	public String execute() throws Exception {
-		user = new User();
-		//userListAux = new ArrayList<String>();
-		//userListAux.add(getUserName());
 		setMessage("Hola usuario " + getUserName());
 		user.setName(getUserName());
 		user.setToken(Helper.generate_random(16));
-		usersList.put(user.getToken(), user);
+		getUsersList().put(user.getToken(), user);
 		
 		for (Entry<String, User> user : usersList.entrySet()) {
 			System.out.println("Usuarios conectados: Nombre -> "
 					+ user.getValue().getName() + " | Token -> "
 					+ user.getValue().getToken());
 		}
-		//setUsersList(usersList);
+		setUsersList(usersList);
 //		logger.info("Nuevo usuario conectado: Nombre -> " + user.getName() + " token -> "
 //				+ user.getToken());
 		return "SUCCESS";
 	}
-	/**
-	 * @return the userListAux
-	 */
-//	public List<String> getUserListAux() {
-//		return userListAux;
-//	}
-//	/**
-//	 * @param userListAux the userListAux to set
-//	 */
-//	public void setUserListAux(List<String> userListAux) {
-//		this.userListAux = userListAux;
-//	}
+
 	/**
 	 * @return the message
 	 */
@@ -106,7 +92,7 @@ public class Welcome extends ActionSupport implements ModelDriven<User>{
 	 * @return the userList
 	 */
 	public ConcurrentMap<String, User> getUsersList() {
-		return usersList;
+		return Welcome.usersList;
 	}
 
 	/**

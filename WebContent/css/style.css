@@ -6,7 +6,7 @@
 body {
 	padding: 0px;
 	margin: 0px;
-	background-color: white;
+	background-color: #444;
 	font-family: Futura Bk BT Book;
 }
 ul{
@@ -19,9 +19,21 @@ input {
 	font-size:inherit;
 	font-family: Futura Bk BT Book;
 }
+form{
+	background-color: #FFF;
+	padding: 10px;
+	border: 1px solid #666;
+	border-radius: 4px;
+	margin:0px auto;
+}
+table{
+	border: 1px solid #666;
+	border-radius: 4px;
+	margin:0px auto;
+}
 #content{
 	margin: 0px auto;
-	padding: 0px;
+	padding: 10px;
 	background: #999;
 	width: 90%;
 }
@@ -29,6 +41,16 @@ input {
 	position: absolute;
 	z-index: 100;
 	color: white;
+}
+#alert-message{
+	border: 1px solid #F00;
+	border-radius: 4px;
+	background-color: #DDD;
+	color: #900;
+	margin:10px auto;
+	width: inherit;
+	padding: 10px;
+	text-align: center;
 }
 #calling-on{
 	display: none;
@@ -81,6 +103,7 @@ input {
 	background-color:#6F6;
 	border:8px solid #FFF;
 }
+
 :-webkit-full-screen {
   /* properties */
 }

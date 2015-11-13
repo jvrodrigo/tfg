@@ -2,7 +2,7 @@
 <!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
 "http://struts.apache.org/dtds/struts-2.0.dtd">
 <struts>
-    <constant name="struts.action.excludePattern" value="/message,/webrtc/.*?"/>
+    <constant name="struts.action.excludePattern" value="/message.*?,/webrtc.*?,/file.*?,/css.*?,/js.*?,/images.*?"/>
     <constant name="struts.devMode" value="true" />
 	<package name="default" namespace="/" extends="struts-default">
 		<action name="welcome" class="org.web.actions.Welcome" method="execute">

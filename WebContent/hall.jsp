@@ -23,7 +23,7 @@
 		<div id="calling-on">
 			Te está llamando:
 			<span id="caller"></span>
-			<button id="lift"></button><button id="hang-up"></button>
+			<button onclick="acceptCall()" id="lift"></button><button  onclick="hangUp()" id="hang-up"></button>
 		</div>
 		<div class="users-list-div">
 			<ul id="usersList" class="users-list-ul">
@@ -61,6 +61,14 @@
 				+ '", "username":"' + myName.innerHTML + '", "to":"'
 				+ toUser.id + '"}');
 		window.location.assign("webrtc/?r="+ toUser.id + myToken.innerHTML);
+	}
+	function acceptCall(){
+		var url = document.getElementById("caller-url");
+		window.location.assign(url.getAttribute("href"));
+	}
+	function hangUp(){
+		document.getElementById("calling-on").style.display = "none";
+		
 	}
 	var host = "http://localhost";
 	var port = 8080;
@@ -150,7 +158,7 @@
 			if (msg.type == "calling") {
 				//console.log("Te llama el usuario " +  msg.username);
 				document.getElementById("calling-on").style.display = "block";
-				document.getElementById("caller").innerHTML = '<a href="webrtc/?r='
+				document.getElementById("caller").innerHTML = '<a id="caller-url" href="webrtc/?r='
 						+ myToken.innerHTML
 						+ ''
 						+ msg.sender
